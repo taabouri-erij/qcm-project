@@ -1,5 +1,6 @@
 package com.qcm.backend.controller;
 
+import com.qcm.backend.dto.ChapitreDTO;
 import com.qcm.backend.entity.Chapitre;
 import com.qcm.backend.service.ChapitreService;
 import org.springframework.http.ResponseEntity;
@@ -19,31 +20,32 @@ public class ChapitreController {
     }
 
     @GetMapping
-    public List<Chapitre> getAllChapitres() {
-        return chapitreService.getAllChapitres();
+    public List<ChapitreDTO> getAllChapitres() {
+        return chapitreService.getAllChapitres().stream().map(chapitreService::convertToDTO).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Chapitre> getChapitreById(@PathVariable Long id) {
+    public ResponseEntity<ChapitreDTO> getChapitreById(@PathVariable Long id) {
         return chapitreService.getChapitreById(id)
+                .map(chapitreService::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/matiere/{matiereId}")
-    public List<Chapitre> getChapitresByMatiere(@PathVariable Long matiereId) {
-        return chapitreService.getChapitresByMatiere(matiereId);
+    public List<ChapitreDTO> getChapitresByMatiere(@PathVariable Long matiereId) {
+        return chapitreService.getChapitresByMatiere(matiereId).stream().map(chapitreService::convertToDTO).toList();
     }
 
     @PostMapping
-    public Chapitre createChapitre(@RequestBody Chapitre chapitre) {
-        return chapitreService.createChapitre(chapitre);
+    public ChapitreDTO createChapitre(@RequestBody Chapitre chapitre) {
+        return chapitreService.convertToDTO(chapitreService.createChapitre(chapitre));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Chapitre> updateChapitre(@PathVariable Long id, @RequestBody Chapitre details) {
+    public ResponseEntity<ChapitreDTO> updateChapitre(@PathVariable Long id, @RequestBody Chapitre details) {
         try {
-            return ResponseEntity.ok(chapitreService.updateChapitre(id, details));
+            return ResponseEntity.ok(chapitreService.convertToDTO(chapitreService.updateChapitre(id, details)));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

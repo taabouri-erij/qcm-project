@@ -1,5 +1,6 @@
 package com.qcm.backend.controller;
 
+import com.qcm.backend.dto.ModuleDTO;
 import com.qcm.backend.entity.Module;
 import com.qcm.backend.service.ModuleService;
 import org.springframework.http.ResponseEntity;
@@ -19,26 +20,27 @@ public class ModuleController {
     }
 
     @GetMapping
-    public List<Module> getAllModules() {
-        return moduleService.getAllModules();
+    public List<ModuleDTO> getAllModules() {
+        return moduleService.getAllModules().stream().map(moduleService::convertToDTO).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Module> getModuleById(@PathVariable Long id) {
+    public ResponseEntity<ModuleDTO> getModuleById(@PathVariable Long id) {
         return moduleService.getModuleById(id)
+                .map(moduleService::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Module createModule(@RequestBody Module module) {
-        return moduleService.createModule(module);
+    public ModuleDTO createModule(@RequestBody Module module) {
+        return moduleService.convertToDTO(moduleService.createModule(module));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Module> updateModule(@PathVariable Long id, @RequestBody Module details) {
+    public ResponseEntity<ModuleDTO> updateModule(@PathVariable Long id, @RequestBody Module details) {
         try {
-            return ResponseEntity.ok(moduleService.updateModule(id, details));
+            return ResponseEntity.ok(moduleService.convertToDTO(moduleService.updateModule(id, details)));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

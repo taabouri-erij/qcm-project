@@ -1,5 +1,6 @@
 package com.qcm.backend.controller;
 
+import com.qcm.backend.dto.EvaluationDTO;
 import com.qcm.backend.entity.Evaluation;
 import com.qcm.backend.service.EvaluationService;
 import org.springframework.http.ResponseEntity;
@@ -19,36 +20,40 @@ public class EvaluationController {
     }
 
     @GetMapping
-    public List<Evaluation> getAllEvaluations() {
-        return evaluationService.getAllEvaluations();
+    public List<EvaluationDTO> getAllEvaluations() {
+        return evaluationService.getAllEvaluations().stream()
+                .map(evaluationService::convertToDTOSansQuestions).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Evaluation> getEvaluationById(@PathVariable Long id) {
+    public ResponseEntity<EvaluationDTO> getEvaluationById(@PathVariable Long id) {
         return evaluationService.getEvaluationById(id)
+                .map(evaluationService::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/chapitre/{chapitreId}")
-    public List<Evaluation> getByChapitre(@PathVariable Long chapitreId) {
-        return evaluationService.getEvaluationsByChapitre(chapitreId);
+    public List<EvaluationDTO> getByChapitre(@PathVariable Long chapitreId) {
+        return evaluationService.getEvaluationsByChapitre(chapitreId).stream()
+                .map(evaluationService::convertToDTOSansQuestions).toList();
     }
 
     @GetMapping("/matiere/{matiereId}")
-    public List<Evaluation> getByMatiere(@PathVariable Long matiereId) {
-        return evaluationService.getEvaluationsByMatiere(matiereId);
+    public List<EvaluationDTO> getByMatiere(@PathVariable Long matiereId) {
+        return evaluationService.getEvaluationsByMatiere(matiereId).stream()
+                .map(evaluationService::convertToDTOSansQuestions).toList();
     }
 
     @PostMapping
-    public Evaluation createEvaluation(@RequestBody Evaluation evaluation) {
-        return evaluationService.createEvaluation(evaluation);
+    public EvaluationDTO createEvaluation(@RequestBody Evaluation evaluation) {
+        return evaluationService.convertToDTO(evaluationService.createEvaluation(evaluation));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Evaluation> updateEvaluation(@PathVariable Long id, @RequestBody Evaluation details) {
+    public ResponseEntity<EvaluationDTO> updateEvaluation(@PathVariable Long id, @RequestBody Evaluation details) {
         try {
-            return ResponseEntity.ok(evaluationService.updateEvaluation(id, details));
+            return ResponseEntity.ok(evaluationService.convertToDTO(evaluationService.updateEvaluation(id, details)));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

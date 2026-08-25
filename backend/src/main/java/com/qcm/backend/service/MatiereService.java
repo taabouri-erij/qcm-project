@@ -1,5 +1,6 @@
 package com.qcm.backend.service;
 
+import com.qcm.backend.dto.MatiereDTO;
 import com.qcm.backend.entity.Matiere;
 import com.qcm.backend.repository.MatiereRepository;
 import org.springframework.stereotype.Service;
@@ -43,5 +44,17 @@ public class MatiereService {
 
     public void deleteMatiere(Long id) {
         matiereRepository.deleteById(id);
+    }
+
+    public MatiereDTO convertToDTO(Matiere matiere) {
+        MatiereDTO dto = new MatiereDTO();
+        dto.setId(matiere.getId());
+        dto.setNom(matiere.getNom());
+        dto.setDescription(matiere.getDescription());
+        if (matiere.getModule() != null) {
+            dto.setModuleId(matiere.getModule().getId());
+            dto.setModuleNom(matiere.getModule().getNom());
+        }
+        return dto;
     }
 }

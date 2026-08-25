@@ -2,6 +2,7 @@ package com.qcm.backend.service;
 
 import com.qcm.backend.entity.*;
 import com.qcm.backend.repository.*;
+import com.qcm.backend.dto.TentativeDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -176,4 +177,31 @@ public class TentativeService {
 
         return (int) (evaluation.getNombreTentativesMax() - nbDejaFaites);
     }
+    // =========================================================
+// CONVERSION ENTITÉ -> DTO
+// =========================================================
+    public TentativeDTO convertToDTO(Tentative tentative) {
+        TentativeDTO dto = new TentativeDTO();
+
+        dto.setId(tentative.getId());
+        dto.setStatut(tentative.getStatut());
+        dto.setScore(tentative.getScore());
+        dto.setDateDebut(tentative.getDateDebut());
+        dto.setDateFin(tentative.getDateFin());
+        dto.setNombreAlertes(tentative.getNombreAlertes());
+
+        if (tentative.getEtudiant() != null) {
+            dto.setEtudiantId(tentative.getEtudiant().getId());
+            dto.setEtudiantNom(tentative.getEtudiant().getNom());
+            dto.setEtudiantPrenom(tentative.getEtudiant().getPrenom());
+        }
+
+        if (tentative.getEvaluation() != null) {
+            dto.setEvaluationId(tentative.getEvaluation().getId());
+            dto.setEvaluationTitre(tentative.getEvaluation().getTitre());
+        }
+
+        return dto;
+    }
+
 }

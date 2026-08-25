@@ -1,5 +1,6 @@
 package com.qcm.backend.service;
 
+import com.qcm.backend.dto.EvaluationQuestionDTO;
 import com.qcm.backend.entity.Evaluation;
 import com.qcm.backend.entity.EvaluationQuestion;
 import com.qcm.backend.entity.Question;
@@ -16,13 +17,16 @@ public class EvaluationQuestionService {
     private final EvaluationQuestionRepository repository;
     private final EvaluationRepository evaluationRepository;
     private final QuestionRepository questionRepository;
+    private final QuestionService questionService;
 
     public EvaluationQuestionService(EvaluationQuestionRepository repository,
                                      EvaluationRepository evaluationRepository,
-                                     QuestionRepository questionRepository) {
+                                     QuestionRepository questionRepository,
+                                     QuestionService questionService) {
         this.repository = repository;
         this.evaluationRepository = evaluationRepository;
         this.questionRepository = questionRepository;
+        this.questionService = questionService;
     }
 
     public List<EvaluationQuestion> getByEvaluation(Long evaluationId) {
@@ -53,5 +57,19 @@ public class EvaluationQuestionService {
 
     public void supprimer(Long id) {
         repository.deleteById(id);
+    }
+
+    public EvaluationQuestionDTO convertToDTO(EvaluationQuestion eq) {
+        EvaluationQuestionDTO dto = new EvaluationQuestionDTO();
+        dto.setId(eq.getId());
+        dto.setPoints(eq.getPoints());
+        dto.setOrdre(eq.getOrdre());
+        if (eq.getEvaluation() != null) {
+            dto.setEvaluationId(eq.getEvaluation().getId());
+        }
+        if (eq.getQuestion() != null) {
+            dto.setQuestion(questionService.convertToDTO(eq.getQuestion()));
+        }
+        return dto;
     }
 }

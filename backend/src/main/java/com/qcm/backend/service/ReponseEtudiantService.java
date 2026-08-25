@@ -1,5 +1,6 @@
 package com.qcm.backend.service;
 
+import com.qcm.backend.dto.ReponseEtudiantDTO;
 import com.qcm.backend.entity.ReponseEtudiant;
 import com.qcm.backend.repository.ReponseEtudiantRepository;
 import org.springframework.stereotype.Service;
@@ -37,5 +38,28 @@ public class ReponseEtudiantService {
 
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    public ReponseEtudiantDTO convertToDTO(ReponseEtudiant r) {
+        ReponseEtudiantDTO dto = new ReponseEtudiantDTO();
+        dto.setId(r.getId());
+        dto.setScoreQuestion(r.getScoreQuestion());
+        if (r.getTentative() != null) {
+            dto.setTentativeId(r.getTentative().getId());
+        }
+        if (r.getEvaluationQuestion() != null) {
+            dto.setEvaluationQuestionId(r.getEvaluationQuestion().getId());
+            if (r.getEvaluationQuestion().getQuestion() != null) {
+                dto.setQuestionEnonce(r.getEvaluationQuestion().getQuestion().getEnonce());
+            }
+        }
+        if (r.getChoix() != null) {
+            dto.setReponsesChoisiesIds(
+                    r.getChoix().stream()
+                            .map(c -> c.getReponsePossible().getId())
+                            .toList()
+            );
+        }
+        return dto;
     }
 }

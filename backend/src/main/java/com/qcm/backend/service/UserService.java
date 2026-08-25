@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import com.qcm.backend.dto.UserDTO;
 @Service
 public class UserService {
 
@@ -150,4 +150,20 @@ public class UserService {
         log.setUtilisateur(utilisateur);
         auditLogRepository.save(log);
     }
+
+    public UserDTO convertToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setNom(user.getNom());
+        dto.setPrenom(user.getPrenom());
+        dto.setEmail(user.getEmail());
+        dto.setRole(user.getRole());
+        dto.setActif(user.getActif());
+        dto.setDateCreation(user.getDateCreation());
+        return dto;
+
+
+    }
+
+
 }

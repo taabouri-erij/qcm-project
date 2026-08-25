@@ -1,5 +1,6 @@
 package com.qcm.backend.controller;
 
+import com.qcm.backend.dto.TentativeDTO;
 import com.qcm.backend.entity.Tentative;
 import com.qcm.backend.service.NotationService;
 import com.qcm.backend.service.TentativeService;
@@ -28,20 +29,27 @@ public class TentativeController {
     // =========================================================
 
     @GetMapping("/{id}")
-    public ResponseEntity<Tentative> getTentativeById(@PathVariable Long id) {
+    public ResponseEntity<TentativeDTO> getTentativeById(@PathVariable Long id) {
         return tentativeService.getTentativeById(id)
+                .map(tentativeService::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/etudiant/{etudiantId}")
-    public List<Tentative> getByEtudiant(@PathVariable Long etudiantId) {
-        return tentativeService.getTentativesByEtudiant(etudiantId);
+    public List<TentativeDTO> getByEtudiant(@PathVariable Long etudiantId) {
+        return tentativeService.getTentativesByEtudiant(etudiantId)
+                .stream()
+                .map(tentativeService::convertToDTO)
+                .toList();
     }
 
     @GetMapping("/evaluation/{evaluationId}")
-    public List<Tentative> getByEvaluation(@PathVariable Long evaluationId) {
-        return tentativeService.getTentativesByEvaluation(evaluationId);
+    public List<TentativeDTO> getByEvaluation(@PathVariable Long evaluationId) {
+        return tentativeService.getTentativesByEvaluation(evaluationId)
+                .stream()
+                .map(tentativeService::convertToDTO)
+                .toList();
     }
 
     // =========================================================
@@ -56,7 +64,7 @@ public class TentativeController {
                     body.get("etudiantId"),
                     body.get("evaluationId")
             );
-            return ResponseEntity.ok(t);
+            return ResponseEntity.ok(tentativeService.convertToDTO(t));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -66,7 +74,7 @@ public class TentativeController {
     public ResponseEntity<?> soumettre(@PathVariable Long id) {
         try {
             Tentative tentative = notationService.soumettreTentative(id);
-            return ResponseEntity.ok(tentative);
+            return ResponseEntity.ok(tentativeService.convertToDTO(tentative));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -1,5 +1,6 @@
 package com.qcm.backend.controller;
 
+import com.qcm.backend.dto.ReponseEtudiantDTO;
 import com.qcm.backend.entity.ReponseEtudiant;
 import com.qcm.backend.service.ReponseEtudiantService;
 import org.springframework.http.ResponseEntity;
@@ -19,26 +20,27 @@ public class ReponseEtudiantController {
     }
 
     @GetMapping("/tentative/{tentativeId}")
-    public List<ReponseEtudiant> getByTentative(@PathVariable Long tentativeId) {
-        return service.getByTentative(tentativeId);
+    public List<ReponseEtudiantDTO> getByTentative(@PathVariable Long tentativeId) {
+        return service.getByTentative(tentativeId).stream().map(service::convertToDTO).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReponseEtudiant> getById(@PathVariable Long id) {
+    public ResponseEntity<ReponseEtudiantDTO> getById(@PathVariable Long id) {
         return service.getById(id)
+                .map(service::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ReponseEtudiant create(@RequestBody ReponseEtudiant reponse) {
-        return service.create(reponse);
+    public ReponseEtudiantDTO create(@RequestBody ReponseEtudiant reponse) {
+        return service.convertToDTO(service.create(reponse));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReponseEtudiant> update(@PathVariable Long id, @RequestBody ReponseEtudiant details) {
+    public ResponseEntity<ReponseEtudiantDTO> update(@PathVariable Long id, @RequestBody ReponseEtudiant details) {
         try {
-            return ResponseEntity.ok(service.update(id, details));
+            return ResponseEntity.ok(service.convertToDTO(service.update(id, details)));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

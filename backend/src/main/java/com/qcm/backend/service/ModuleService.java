@@ -1,5 +1,6 @@
 package com.qcm.backend.service;
 
+import com.qcm.backend.dto.ModuleDTO;
 import com.qcm.backend.entity.Module;
 import com.qcm.backend.repository.ModuleRepository;
 import org.springframework.stereotype.Service;
@@ -38,5 +39,13 @@ public class ModuleService {
 
     public void deleteModule(Long id) {
         moduleRepository.deleteById(id);
+    }
+
+    public ModuleDTO convertToDTO(Module module) {
+        ModuleDTO dto = new ModuleDTO();
+        dto.setId(module.getId());
+        dto.setNom(module.getNom());
+        dto.setDescription(module.getDescription());
+        return dto;
     }
 }

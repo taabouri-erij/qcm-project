@@ -1,8 +1,11 @@
 package com.qcm.backend.controller;
 
-import com.qcm.backend.entity.EvaluationQuestion;
+import com.qcm.backend.dto.EvaluationQuestionDTO;
+import com.qcm.backend.dto.ReponseEtudiantDTO;
 import com.qcm.backend.entity.ReponseEtudiant;
+import com.qcm.backend.service.EvaluationQuestionService;
 import com.qcm.backend.service.PassageService;
+import com.qcm.backend.service.ReponseEtudiantService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,12 +18,17 @@ import java.util.Map;
 public class PassageController {
 
     private final PassageService passageService;
+    private final EvaluationQuestionService evaluationQuestionService;
+    private final ReponseEtudiantService reponseEtudiantService;
 
-    public PassageController(PassageService passageService) {
+    public PassageController(PassageService passageService,
+                             EvaluationQuestionService evaluationQuestionService,
+                             ReponseEtudiantService reponseEtudiantService) {
         this.passageService = passageService;
+        this.evaluationQuestionService = evaluationQuestionService;
+        this.reponseEtudiantService = reponseEtudiantService;
     }
 
-    // Répondre à une question
     // Body: { "tentativeId": 1, "evaluationQuestionId": 2, "reponsesPossiblesIds": [3, 5] }
     @PostMapping("/repondre")
     public ResponseEntity<?> repondre(@RequestBody Map<String, Object> body) {
@@ -35,15 +43,16 @@ public class PassageController {
                     : List.of();
 
             ReponseEtudiant re = passageService.repondre(tentativeId, evaluationQuestionId, ids);
-            return ResponseEntity.ok(re);
+            return ResponseEntity.ok(reponseEtudiantService.convertToDTO(re));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Questions d'une évaluation
     @GetMapping("/questions/{evaluationId}")
-    public List<EvaluationQuestion> getQuestions(@PathVariable Long evaluationId) {
-        return passageService.getQuestionsEvaluation(evaluationId);
+    public List<EvaluationQuestionDTO> getQuestions(@PathVariable Long evaluationId) {
+        return passageService.getQuestionsEvaluation(evaluationId).stream()
+                .map(evaluationQuestionService::convertToDTO)
+                .toList();
     }
 }

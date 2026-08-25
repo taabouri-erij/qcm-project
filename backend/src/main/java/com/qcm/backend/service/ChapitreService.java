@@ -1,5 +1,6 @@
 package com.qcm.backend.service;
 
+import com.qcm.backend.dto.ChapitreDTO;
 import com.qcm.backend.entity.Chapitre;
 import com.qcm.backend.repository.ChapitreRepository;
 import org.springframework.stereotype.Service;
@@ -44,5 +45,18 @@ public class ChapitreService {
 
     public void deleteChapitre(Long id) {
         chapitreRepository.deleteById(id);
+    }
+
+    public ChapitreDTO convertToDTO(Chapitre chapitre) {
+        ChapitreDTO dto = new ChapitreDTO();
+        dto.setId(chapitre.getId());
+        dto.setTitre(chapitre.getTitre());
+        dto.setNumero(chapitre.getNumero());
+        dto.setDescription(chapitre.getDescription());
+        if (chapitre.getMatiere() != null) {
+            dto.setMatiereId(chapitre.getMatiere().getId());
+            dto.setMatiereNom(chapitre.getMatiere().getNom());
+        }
+        return dto;
     }
 }

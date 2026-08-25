@@ -1,5 +1,6 @@
 package com.qcm.backend.controller;
 
+import com.qcm.backend.dto.UserDTO;
 import com.qcm.backend.entity.User;
 import com.qcm.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -20,35 +21,44 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserDTO> getAllUsers() {
+        return userService.getAllUsers()
+                .stream()
+                .map(userService::convertToDTO)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
+                .map(userService::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     // Recherche / filtre : /api/users/search?nom=ali&role=ETUDIANT&actif=true
     @GetMapping("/search")
-    public List<User> searchUsers(
+    public List<UserDTO> searchUsers(
             @RequestParam(required = false) String nom,
             @RequestParam(required = false) String role,
             @RequestParam(required = false) Boolean actif) {
-        return userService.searchUsers(nom, role, actif);
+        return userService.searchUsers(nom, role, actif)
+                .stream()
+                .map(userService::convertToDTO)
+                .toList();
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public UserDTO createUser(@RequestBody User user) {
+        User created = userService.createUser(user);
+        return userService.convertToDTO(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
         try {
-            return ResponseEntity.ok(userService.updateUser(id, userDetails));
+            User updated = userService.updateUser(id, userDetails);
+            return ResponseEntity.ok(userService.convertToDTO(updated));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

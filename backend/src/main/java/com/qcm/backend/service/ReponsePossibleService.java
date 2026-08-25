@@ -1,5 +1,6 @@
 package com.qcm.backend.service;
 
+import com.qcm.backend.dto.ReponsePossibleDTO;
 import com.qcm.backend.entity.ReponsePossible;
 import com.qcm.backend.repository.ReponsePossibleRepository;
 import org.springframework.stereotype.Service;
@@ -39,5 +40,17 @@ public class ReponsePossibleService {
 
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    public ReponsePossibleDTO convertToDTO(ReponsePossible r) {
+        ReponsePossibleDTO dto = new ReponsePossibleDTO();
+        dto.setId(r.getId());
+        dto.setTexte(r.getTexte());
+        dto.setEstCorrecte(r.getEstCorrecte());
+        dto.setOrdre(r.getOrdre());
+        if (r.getQuestion() != null) {
+            dto.setQuestionId(r.getQuestion().getId());
+        }
+        return dto;
     }
 }

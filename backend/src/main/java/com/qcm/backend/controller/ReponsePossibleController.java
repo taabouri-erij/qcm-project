@@ -1,5 +1,6 @@
 package com.qcm.backend.controller;
 
+import com.qcm.backend.dto.ReponsePossibleDTO;
 import com.qcm.backend.entity.ReponsePossible;
 import com.qcm.backend.service.ReponsePossibleService;
 import org.springframework.http.ResponseEntity;
@@ -19,26 +20,27 @@ public class ReponsePossibleController {
     }
 
     @GetMapping("/question/{questionId}")
-    public List<ReponsePossible> getByQuestion(@PathVariable Long questionId) {
-        return service.getByQuestion(questionId);
+    public List<ReponsePossibleDTO> getByQuestion(@PathVariable Long questionId) {
+        return service.getByQuestion(questionId).stream().map(service::convertToDTO).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReponsePossible> getById(@PathVariable Long id) {
+    public ResponseEntity<ReponsePossibleDTO> getById(@PathVariable Long id) {
         return service.getById(id)
+                .map(service::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ReponsePossible create(@RequestBody ReponsePossible reponse) {
-        return service.create(reponse);
+    public ReponsePossibleDTO create(@RequestBody ReponsePossible reponse) {
+        return service.convertToDTO(service.create(reponse));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReponsePossible> update(@PathVariable Long id, @RequestBody ReponsePossible details) {
+    public ResponseEntity<ReponsePossibleDTO> update(@PathVariable Long id, @RequestBody ReponsePossible details) {
         try {
-            return ResponseEntity.ok(service.update(id, details));
+            return ResponseEntity.ok(service.convertToDTO(service.update(id, details)));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
