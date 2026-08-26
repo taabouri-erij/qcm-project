@@ -1,5 +1,6 @@
 package com.qcm.backend.service;
 import com.qcm.backend.exception.ConflitException;
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import com.qcm.backend.dto.UserDTO;
 import com.qcm.backend.entity.AuditLog;
 import com.qcm.backend.entity.User;
