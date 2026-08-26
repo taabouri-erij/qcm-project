@@ -29,11 +29,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id)
-                .map(userService::convertToDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public UserDTO getUserById(@PathVariable Long id) {
+        return userService.convertToDTO(userService.getUserById(id));
     }
 
     // Recherche / filtre : /api/users/search?nom=ali&role=ETUDIANT&actif=true
