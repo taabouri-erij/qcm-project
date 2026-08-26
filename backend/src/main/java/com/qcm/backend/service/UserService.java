@@ -1,10 +1,12 @@
 package com.qcm.backend.service;
-import com.qcm.backend.exception.ConflitException;
-import com.qcm.backend.exception.RessourceNonTrouveeException;
+
+import com.qcm.backend.dto.CreateUserRequest;
+import com.qcm.backend.dto.UpdateUserRequest;
 import com.qcm.backend.dto.UserDTO;
 import com.qcm.backend.entity.AuditLog;
 import com.qcm.backend.entity.User;
-
+import com.qcm.backend.exception.ConflitException;
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import com.qcm.backend.repository.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,11 +54,19 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
+    public User createUser(CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflitException("Cet email existe déjà");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        User user = new User();
+        user.setNom(request.getNom());
+        user.setPrenom(request.getPrenom());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(request.getRole());
+        user.setActif(true);
+
         User saved = userRepository.save(user);
         enregistrerAudit("CREATION_USER", "User", saved.getId(),
                 "Création de l'utilisateur " + saved.getEmail(), null);
@@ -64,15 +74,15 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(Long id, User userDetails) {
+    public User updateUser(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RessourceNonTrouveeException("Utilisateur non trouvé"));
 
-        user.setNom(userDetails.getNom());
-        user.setPrenom(userDetails.getPrenom());
-        user.setEmail(userDetails.getEmail());
-        user.setRole(userDetails.getRole());
-        user.setActif(userDetails.getActif());
+        user.setNom(request.getNom());
+        user.setPrenom(request.getPrenom());
+        user.setEmail(request.getEmail());
+        user.setRole(request.getRole());
+        user.setActif(request.getActif());
 
         User saved = userRepository.save(user);
         enregistrerAudit("MODIFICATION_USER", "User", saved.getId(),
@@ -117,11 +127,6 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Suppression protégée :
-     * - Si l'utilisateur a des données liées (tentatives, associations) → désactivation
-     * - Sinon → suppression définitive
-     */
     @Transactional
     public String deleteUser(Long id) {
         User user = userRepository.findById(id)
@@ -136,7 +141,7 @@ public class UserService {
             userRepository.save(user);
             enregistrerAudit("DESACTIVATION_USER", "User", id,
                     "Suppression refusée (données liées) → compte désactivé", null);
-            return "DESACTIVE"; // le compte a été désactivé
+            return "DESACTIVE";
         }
 
         userRepository.deleteById(id);
@@ -166,9 +171,5 @@ public class UserService {
         dto.setActif(user.getActif());
         dto.setDateCreation(user.getDateCreation());
         return dto;
-
-
     }
-
-
 }

@@ -2,6 +2,7 @@ package com.qcm.backend.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -22,8 +23,23 @@ public class GlobalExceptionHandler {
         return construireReponse(HttpStatus.CONFLICT, e.getMessage());
     }
 
-    // Filet de sécurité : toute autre RuntimeException non catégorisée
-    // (ex: règles métier comme "cette tentative n'est plus modifiable")
+    // Erreurs de validation (@Valid) : on liste chaque champ en erreur avec son message
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> gererValidation(MethodArgumentNotValidException e) {
+        Map<String, String> erreursParChamp = new LinkedHashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(erreur ->
+                erreursParChamp.put(erreur.getField(), erreur.getDefaultMessage())
+        );
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Validation échouée");
+        body.put("erreurs", erreursParChamp);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> gererErreurGenerique(RuntimeException e) {
         return construireReponse(HttpStatus.BAD_REQUEST, e.getMessage());

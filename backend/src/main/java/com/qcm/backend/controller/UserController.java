@@ -1,9 +1,10 @@
 package com.qcm.backend.controller;
 
+import com.qcm.backend.dto.CreateUserRequest;
+import com.qcm.backend.dto.UpdateUserRequest;
 import com.qcm.backend.dto.UserDTO;
-import com.qcm.backend.entity.User;
 import com.qcm.backend.service.UserService;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +34,6 @@ public class UserController {
         return userService.convertToDTO(userService.getUserById(id));
     }
 
-    // Recherche / filtre : /api/users/search?nom=ali&role=ETUDIANT&actif=true
     @GetMapping("/search")
     public List<UserDTO> searchUsers(
             @RequestParam(required = false) String nom,
@@ -46,61 +46,33 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDTO createUser(@RequestBody User user) {
-        User created = userService.createUser(user);
-        return userService.convertToDTO(created);
+    public UserDTO createUser(@Valid @RequestBody CreateUserRequest request) {
+        return userService.convertToDTO(userService.createUser(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
-        try {
-            User updated = userService.updateUser(id, userDetails);
-            return ResponseEntity.ok(userService.convertToDTO(updated));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public UserDTO updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        return userService.convertToDTO(userService.updateUser(id, request));
     }
 
     @PutMapping("/{id}/deactivate")
-    public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
-        try {
-            userService.deactivateUser(id);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public void deactivateUser(@PathVariable Long id) {
+        userService.deactivateUser(id);
     }
 
     @PutMapping("/{id}/activate")
-    public ResponseEntity<Void> activateUser(@PathVariable Long id) {
-        try {
-            userService.activateUser(id);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public void activateUser(@PathVariable Long id) {
+        userService.activateUser(id);
     }
 
-    // Réinitialiser mot de passe
-    // Body JSON : { "password": "nouveauMotDePasse" }
     @PutMapping("/{id}/reset-password")
-    public ResponseEntity<Void> resetPassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        try {
-            userService.resetPassword(id, body.get("password"));
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public void resetPassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        userService.resetPassword(id, body.get("password"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        try {
-            String resultat = userService.deleteUser(id);
-            return ResponseEntity.ok(java.util.Map.of("resultat", resultat));
-            // resultat = "SUPPRIME" ou "DESACTIVE"
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public Map<String, String> deleteUser(@PathVariable Long id) {
+        String resultat = userService.deleteUser(id);
+        return Map.of("resultat", resultat);
     }
 }
