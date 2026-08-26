@@ -1,9 +1,10 @@
 package com.qcm.backend.entity;
 
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "reponses_etudiant")
 public class ReponseEtudiant {

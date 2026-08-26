@@ -4,7 +4,7 @@ import com.qcm.backend.dto.MatiereDTO;
 import com.qcm.backend.entity.Matiere;
 import com.qcm.backend.repository.MatiereRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +35,7 @@ public class MatiereService {
 
     public Matiere updateMatiere(Long id, Matiere details) {
         Matiere matiere = matiereRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Matière non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Matière non trouvée"));
         matiere.setNom(details.getNom());
         matiere.setDescription(details.getDescription());
         matiere.setModule(details.getModule());

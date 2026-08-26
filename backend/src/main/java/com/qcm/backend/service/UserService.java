@@ -1,19 +1,18 @@
 package com.qcm.backend.service;
-
-import com.qcm.backend.entity.User;
-import com.qcm.backend.repository.TentativeRepository;
-import com.qcm.backend.repository.UserRepository;
-import com.qcm.backend.repository.EnseignantMatiereRepository;
-import com.qcm.backend.repository.EtudiantMatiereRepository;
-import com.qcm.backend.repository.AuditLogRepository;
+import com.qcm.backend.exception.ConflitException;
+import com.qcm.backend.dto.UserDTO;
 import com.qcm.backend.entity.AuditLog;
+import com.qcm.backend.entity.User;
+
+import com.qcm.backend.repository.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import com.qcm.backend.dto.UserDTO;
+
 @Service
 public class UserService {
 
@@ -22,17 +21,20 @@ public class UserService {
     private final EnseignantMatiereRepository enseignantMatiereRepository;
     private final EtudiantMatiereRepository etudiantMatiereRepository;
     private final AuditLogRepository auditLogRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
                        TentativeRepository tentativeRepository,
                        EnseignantMatiereRepository enseignantMatiereRepository,
                        EtudiantMatiereRepository etudiantMatiereRepository,
-                       AuditLogRepository auditLogRepository) {
+                       AuditLogRepository auditLogRepository,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.tentativeRepository = tentativeRepository;
         this.enseignantMatiereRepository = enseignantMatiereRepository;
         this.etudiantMatiereRepository = etudiantMatiereRepository;
         this.auditLogRepository = auditLogRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> getAllUsers() {
@@ -50,8 +52,9 @@ public class UserService {
     @Transactional
     public User createUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Cet email existe déjà");
+            throw new ConflitException("Cet email existe déjà");
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User saved = userRepository.save(user);
         enregistrerAudit("CREATION_USER", "User", saved.getId(),
                 "Création de l'utilisateur " + saved.getEmail(), null);
@@ -61,7 +64,7 @@ public class UserService {
     @Transactional
     public User updateUser(Long id, User userDetails) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Utilisateur non trouvé"));
 
         user.setNom(userDetails.getNom());
         user.setPrenom(userDetails.getPrenom());
@@ -78,7 +81,7 @@ public class UserService {
     @Transactional
     public void activateUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Utilisateur non trouvé"));
         user.setActif(true);
         userRepository.save(user);
         enregistrerAudit("ACTIVATION_USER", "User", id, "Activation du compte", null);
@@ -87,7 +90,7 @@ public class UserService {
     @Transactional
     public void deactivateUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Utilisateur non trouvé"));
         user.setActif(false);
         userRepository.save(user);
         enregistrerAudit("DESACTIVATION_USER", "User", id, "Désactivation du compte", null);
@@ -96,8 +99,8 @@ public class UserService {
     @Transactional
     public void resetPassword(Long id, String nouveauMotDePasse) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-        user.setPassword(nouveauMotDePasse);
+                .orElseThrow(() -> new RessourceNonTrouveeException("Utilisateur non trouvé"));
+        user.setPassword(passwordEncoder.encode(nouveauMotDePasse));
         userRepository.save(user);
         enregistrerAudit("RESET_PASSWORD", "User", id, "Réinitialisation du mot de passe", null);
     }
@@ -120,7 +123,7 @@ public class UserService {
     @Transactional
     public String deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Utilisateur non trouvé"));
 
         boolean aDesTentatives = !tentativeRepository.findByEtudiantId(id).isEmpty();
         boolean aDesAssociationsEnseignant = !enseignantMatiereRepository.findByEnseignantId(id).isEmpty();

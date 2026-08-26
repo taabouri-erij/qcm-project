@@ -4,7 +4,7 @@ import com.qcm.backend.dto.ModuleDTO;
 import com.qcm.backend.entity.Module;
 import com.qcm.backend.repository.ModuleRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +31,7 @@ public class ModuleService {
 
     public Module updateModule(Long id, Module details) {
         Module module = moduleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Module non trouvé"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Module non trouvé"));
         module.setNom(details.getNom());
         module.setDescription(details.getDescription());
         return moduleRepository.save(module);

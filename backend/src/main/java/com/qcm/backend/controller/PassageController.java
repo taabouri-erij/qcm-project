@@ -1,7 +1,6 @@
 package com.qcm.backend.controller;
 
 import com.qcm.backend.dto.EvaluationQuestionDTO;
-import com.qcm.backend.dto.ReponseEtudiantDTO;
 import com.qcm.backend.entity.ReponseEtudiant;
 import com.qcm.backend.service.EvaluationQuestionService;
 import com.qcm.backend.service.PassageService;

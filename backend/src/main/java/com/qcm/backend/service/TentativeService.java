@@ -1,11 +1,13 @@
 package com.qcm.backend.service;
 
-import com.qcm.backend.entity.*;
-import com.qcm.backend.repository.*;
 import com.qcm.backend.dto.TentativeDTO;
+import com.qcm.backend.entity.Evaluation;
+import com.qcm.backend.entity.Tentative;
+import com.qcm.backend.entity.User;
+import com.qcm.backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +55,7 @@ public class TentativeService {
 
     public Tentative updateTentative(Long id, Tentative details) {
         Tentative tentative = tentativeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tentative non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Tentative non trouvée"));
         tentative.setDateFin(details.getDateFin());
         tentative.setScore(details.getScore());
         tentative.setStatut(details.getStatut());
@@ -70,10 +72,10 @@ public class TentativeService {
     @Transactional
     public Tentative demarrerTentative(Long etudiantId, Long evaluationId) {
         User etudiant = userRepository.findById(etudiantId)
-                .orElseThrow(() -> new RuntimeException("Étudiant non trouvé"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Étudiant non trouvé"));
 
         Evaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Évaluation non trouvée"));
 
         // 1. Évaluation publiée ?
         if (!Boolean.TRUE.equals(evaluation.getPublie())) {
@@ -140,7 +142,7 @@ public class TentativeService {
     // =========================================================
     public String etatEvaluation(Long etudiantId, Long evaluationId) {
         Evaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Évaluation non trouvée"));
 
         LocalDateTime maintenant = LocalDateTime.now();
 
@@ -168,7 +170,7 @@ public class TentativeService {
     // =========================================================
     public int tentativesRestantes(Long etudiantId, Long evaluationId) {
         Evaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Évaluation non trouvée"));
 
         long nbDejaFaites = tentativeRepository
                 .findByEtudiantIdAndEvaluationId(etudiantId, evaluationId).stream()

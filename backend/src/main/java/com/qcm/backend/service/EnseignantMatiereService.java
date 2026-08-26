@@ -7,7 +7,7 @@ import com.qcm.backend.repository.EnseignantMatiereRepository;
 import com.qcm.backend.repository.MatiereRepository;
 import com.qcm.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 
 @Service
@@ -35,9 +35,9 @@ public class EnseignantMatiereService {
 
     public EnseignantMatiere associer(Long enseignantId, Long matiereId) {
         User enseignant = userRepository.findById(enseignantId)
-                .orElseThrow(() -> new RuntimeException("Enseignant non trouvé"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Enseignant non trouvé"));
         Matiere matiere = matiereRepository.findById(matiereId)
-                .orElseThrow(() -> new RuntimeException("Matière non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Matière non trouvée"));
 
         EnseignantMatiere em = new EnseignantMatiere();
         em.setEnseignant(enseignant);

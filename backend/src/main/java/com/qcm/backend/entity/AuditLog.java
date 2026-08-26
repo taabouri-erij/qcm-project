@@ -1,8 +1,9 @@
 package com.qcm.backend.entity;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "audit_logs")
 public class AuditLog {

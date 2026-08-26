@@ -1,7 +1,7 @@
 package com.qcm.backend.entity;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "etudiant_matiere",
         uniqueConstraints = @UniqueConstraint(columnNames = {"etudiant_id", "matiere_id"}))

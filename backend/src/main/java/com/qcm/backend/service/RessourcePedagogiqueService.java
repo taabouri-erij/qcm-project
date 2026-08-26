@@ -3,7 +3,7 @@ package com.qcm.backend.service;
 import com.qcm.backend.entity.RessourcePedagogique;
 import com.qcm.backend.repository.RessourcePedagogiqueRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +34,7 @@ public class RessourcePedagogiqueService {
 
     public RessourcePedagogique update(Long id, RessourcePedagogique details) {
         RessourcePedagogique r = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ressource non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Ressource non trouvée"));
         r.setTitre(details.getTitre());
         r.setContenu(details.getContenu());
         r.setType(details.getType());

@@ -4,7 +4,7 @@ import com.qcm.backend.entity.*;
 import com.qcm.backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -123,7 +123,7 @@ public class NotationService {
     @Transactional
     public Tentative soumettreTentative(Long tentativeId) {
         Tentative tentative = tentativeRepository.findById(tentativeId)
-                .orElseThrow(() -> new RuntimeException("Tentative non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Tentative non trouvée"));
 
         // Vérifier que la tentative est bien EN_COURS
         if (!"EN_COURS".equals(tentative.getStatut())) {

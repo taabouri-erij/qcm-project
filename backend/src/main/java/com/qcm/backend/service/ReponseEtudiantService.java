@@ -4,7 +4,7 @@ import com.qcm.backend.dto.ReponseEtudiantDTO;
 import com.qcm.backend.entity.ReponseEtudiant;
 import com.qcm.backend.repository.ReponseEtudiantRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +31,7 @@ public class ReponseEtudiantService {
 
     public ReponseEtudiant update(Long id, ReponseEtudiant details) {
         ReponseEtudiant r = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Réponse non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Réponse non trouvée"));
         r.setScoreQuestion(details.getScoreQuestion());
         return repository.save(r);
     }

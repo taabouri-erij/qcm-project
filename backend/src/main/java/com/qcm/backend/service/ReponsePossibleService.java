@@ -4,7 +4,7 @@ import com.qcm.backend.dto.ReponsePossibleDTO;
 import com.qcm.backend.entity.ReponsePossible;
 import com.qcm.backend.repository.ReponsePossibleRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +31,7 @@ public class ReponsePossibleService {
 
     public ReponsePossible update(Long id, ReponsePossible details) {
         ReponsePossible r = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Réponse non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Réponse non trouvée"));
         r.setTexte(details.getTexte());
         r.setEstCorrecte(details.getEstCorrecte());
         r.setOrdre(details.getOrdre());

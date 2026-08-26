@@ -1,7 +1,11 @@
 package com.qcm.backend.service;
 
-import com.qcm.backend.entity.*;
-import com.qcm.backend.repository.*;
+import com.qcm.backend.entity.EtudiantMatiere;
+import com.qcm.backend.entity.Evaluation;
+import com.qcm.backend.entity.Matiere;
+import com.qcm.backend.repository.ChapitreRepository;
+import com.qcm.backend.repository.EtudiantMatiereRepository;
+import com.qcm.backend.repository.EvaluationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

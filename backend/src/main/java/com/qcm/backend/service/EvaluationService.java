@@ -4,7 +4,7 @@ import com.qcm.backend.dto.EvaluationDTO;
 import com.qcm.backend.entity.Evaluation;
 import com.qcm.backend.repository.EvaluationRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +42,7 @@ public class EvaluationService {
 
     public Evaluation updateEvaluation(Long id, Evaluation details) {
         Evaluation evaluation = evaluationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Évaluation non trouvée"));
         evaluation.setTitre(details.getTitre());
         evaluation.setType(details.getType());
         evaluation.setDateDebut(details.getDateDebut());

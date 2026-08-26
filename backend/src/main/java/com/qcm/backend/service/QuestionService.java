@@ -4,7 +4,7 @@ import com.qcm.backend.dto.QuestionDTO;
 import com.qcm.backend.entity.Question;
 import com.qcm.backend.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +38,7 @@ public class QuestionService {
 
     public Question updateQuestion(Long id, Question details) {
         Question question = questionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Question non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Question non trouvée"));
         question.setEnonce(details.getEnonce());
         question.setType(details.getType());
         question.setDifficulte(details.getDifficulte());
@@ -49,7 +49,7 @@ public class QuestionService {
 
     public Question dupliquer(Long id) {
         Question originale = questionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Question non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Question non trouvée"));
 
         Question copie = new Question();
         copie.setEnonce(originale.getEnonce() + " (copie)");

@@ -8,7 +8,7 @@ import com.qcm.backend.repository.EvaluationQuestionRepository;
 import com.qcm.backend.repository.EvaluationRepository;
 import com.qcm.backend.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 
 @Service
@@ -35,9 +35,9 @@ public class EvaluationQuestionService {
 
     public EvaluationQuestion ajouterQuestion(Long evaluationId, Long questionId, Double points, Integer ordre) {
         Evaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Évaluation non trouvée"));
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new RuntimeException("Question non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Question non trouvée"));
 
         EvaluationQuestion eq = new EvaluationQuestion();
         eq.setEvaluation(evaluation);
@@ -49,7 +49,7 @@ public class EvaluationQuestionService {
 
     public EvaluationQuestion update(Long id, Double points, Integer ordre) {
         EvaluationQuestion eq = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Lien non trouvé"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Lien non trouvé"));
         if (points != null) eq.setPoints(points);
         if (ordre != null) eq.setOrdre(ordre);
         return repository.save(eq);

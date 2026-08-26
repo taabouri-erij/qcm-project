@@ -4,10 +4,9 @@ import com.qcm.backend.entity.*;
 import com.qcm.backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PassageService {
@@ -44,14 +43,14 @@ public class PassageService {
                                     List<Long> reponsesPossiblesIds) {
 
         Tentative tentative = tentativeRepository.findById(tentativeId)
-                .orElseThrow(() -> new RuntimeException("Tentative non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Tentative non trouvée"));
 
         if (!"EN_COURS".equals(tentative.getStatut())) {
             throw new RuntimeException("Cette tentative n'est plus modifiable");
         }
 
         EvaluationQuestion eq = evaluationQuestionRepository.findById(evaluationQuestionId)
-                .orElseThrow(() -> new RuntimeException("Question d'évaluation non trouvée"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Question d'évaluation non trouvée"));
 
         // Chercher s'il existe déjà une réponse pour cette question dans cette tentative
         List<ReponseEtudiant> existantes = reponseEtudiantRepository.findByTentativeId(tentativeId);
@@ -74,7 +73,7 @@ public class PassageService {
         if (reponsesPossiblesIds != null) {
             for (Long id : reponsesPossiblesIds) {
                 ReponsePossible rp = reponsePossibleRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Réponse possible non trouvée: " + id));
+                        .orElseThrow(() -> new RessourceNonTrouveeException("Réponse possible non trouvée: " + id));
                 choix.add(rp);
 
                 ReponseEtudiantChoix rec = new ReponseEtudiantChoix();

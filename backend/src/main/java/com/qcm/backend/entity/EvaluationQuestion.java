@@ -1,7 +1,7 @@
 package com.qcm.backend.entity;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "evaluation_questions")
 public class EvaluationQuestion {

@@ -4,7 +4,7 @@ import com.qcm.backend.dto.ChapitreDTO;
 import com.qcm.backend.entity.Chapitre;
 import com.qcm.backend.repository.ChapitreRepository;
 import org.springframework.stereotype.Service;
-
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +35,7 @@ public class ChapitreService {
 
     public Chapitre updateChapitre(Long id, Chapitre details) {
         Chapitre chapitre = chapitreRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Chapitre non trouvé"));
+                .orElseThrow(() -> new RessourceNonTrouveeException("Chapitre non trouvé"));
         chapitre.setTitre(details.getTitre());
         chapitre.setNumero(details.getNumero());
         chapitre.setDescription(details.getDescription());
