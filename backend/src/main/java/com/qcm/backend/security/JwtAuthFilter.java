@@ -31,6 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
+
         // Pas de header, ou ne commence pas par "Bearer " -> on laisse passer sans authentifier
         // (Spring Security décidera plus tard si cet endpoint nécessite d'être connecté)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

@@ -21,18 +21,15 @@ public class SecurityFilterConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        System.out.println("!!!!! SECURITY FILTER CHAIN CHARGEE !!!!!");
+
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        // Public : pas besoin d'être connecté
                         .requestMatchers("/api/auth/**").permitAll()
-
-                        // Gestion des utilisateurs : réservée aux admins
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
-
-                        // Création/modification/suppression du contenu pédagogique : profs et admins
                         .requestMatchers(HttpMethod.POST, "/api/modules/**", "/api/matieres/**",
                                 "/api/chapitres/**", "/api/questions/**", "/api/evaluations/**",
                                 "/api/evaluation-questions/**", "/api/reponses-possibles/**")
@@ -45,12 +42,9 @@ public class SecurityFilterConfig {
                                 "/api/chapitres/**", "/api/questions/**", "/api/evaluations/**",
                                 "/api/evaluation-questions/**", "/api/reponses-possibles/**")
                         .hasAnyRole("ENSEIGNANT", "ADMIN")
-
-                        // Tout le reste : juste être connecté (n'importe quel rôle)
                         .anyRequest().authenticated()
                 )
 
-                // On insère notre filtre JWT avant le filtre standard de Spring Security
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

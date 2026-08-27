@@ -1,12 +1,14 @@
 package com.qcm.backend.service;
 
+import com.qcm.backend.dto.CreateModuleRequest;
 import com.qcm.backend.dto.ModuleDTO;
 import com.qcm.backend.entity.Module;
+import com.qcm.backend.exception.ConflitException;
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import com.qcm.backend.repository.ModuleRepository;
 import org.springframework.stereotype.Service;
-import com.qcm.backend.exception.RessourceNonTrouveeException;
+
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ModuleService {
@@ -21,17 +23,24 @@ public class ModuleService {
         return moduleRepository.findAll();
     }
 
-    public Optional<Module> getModuleById(Long id) {
-        return moduleRepository.findById(id);
+    public Module getModuleById(Long id) {
+        return moduleRepository.findById(id)
+                .orElseThrow(() -> new RessourceNonTrouveeException("Module non trouvé"));
     }
 
-    public Module createModule(Module module) {
+    public Module createModule(CreateModuleRequest request) {
+        if (moduleRepository.existsByNom(request.getNom())) {
+            throw new ConflitException("Un module avec ce nom existe déjà");
+        }
+
+        Module module = new Module();
+        module.setNom(request.getNom());
+        module.setDescription(request.getDescription());
         return moduleRepository.save(module);
     }
 
     public Module updateModule(Long id, Module details) {
-        Module module = moduleRepository.findById(id)
-                .orElseThrow(() -> new RessourceNonTrouveeException("Module non trouvé"));
+        Module module = getModuleById(id);
         module.setNom(details.getNom());
         module.setDescription(details.getDescription());
         return moduleRepository.save(module);

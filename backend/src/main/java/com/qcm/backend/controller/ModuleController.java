@@ -3,9 +3,10 @@ package com.qcm.backend.controller;
 import com.qcm.backend.dto.ModuleDTO;
 import com.qcm.backend.entity.Module;
 import com.qcm.backend.service.ModuleService;
+import com.qcm.backend.dto.CreateModuleRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -25,16 +26,13 @@ public class ModuleController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ModuleDTO> getModuleById(@PathVariable Long id) {
-        return moduleService.getModuleById(id)
-                .map(moduleService::convertToDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ModuleDTO getModuleById(@PathVariable Long id) {
+        return moduleService.convertToDTO(moduleService.getModuleById(id));
     }
 
     @PostMapping
-    public ModuleDTO createModule(@RequestBody Module module) {
-        return moduleService.convertToDTO(moduleService.createModule(module));
+    public ModuleDTO createModule(@Valid @RequestBody CreateModuleRequest request) {
+        return moduleService.convertToDTO(moduleService.createModule(request));
     }
 
     @PutMapping("/{id}")
