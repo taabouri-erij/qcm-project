@@ -1,30 +1,22 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [erreur, setErreur] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // empêche le rechargement de page par défaut du formulaire
+    e.preventDefault();
     setErreur('');
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
-        email: email,
-        password: password,
-      });
-
-      // On stocke le token pour les requêtes futures
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userId', response.data.userId);
-      localStorage.setItem('role', response.data.role);
-      localStorage.setItem('nom', response.data.nom);
-      localStorage.setItem('prenom', response.data.prenom);
-
+      const response = await api.post('/auth/login', { email, password });
+      login(response.data);
       navigate('/dashboard');
     } catch (err) {
       setErreur('Email ou mot de passe incorrect');
