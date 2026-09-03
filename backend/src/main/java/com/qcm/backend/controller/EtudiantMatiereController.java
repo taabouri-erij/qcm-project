@@ -1,6 +1,6 @@
 package com.qcm.backend.controller;
 
-import com.qcm.backend.entity.EtudiantMatiere;
+import com.qcm.backend.dto.EtudiantMatiereDTO;
 import com.qcm.backend.service.EtudiantMatiereService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,19 +20,18 @@ public class EtudiantMatiereController {
     }
 
     @GetMapping("/etudiant/{etudiantId}")
-    public List<EtudiantMatiere> getByEtudiant(@PathVariable Long etudiantId) {
-        return service.getByEtudiant(etudiantId);
+    public List<EtudiantMatiereDTO> getByEtudiant(@PathVariable Long etudiantId) {
+        return service.getByEtudiant(etudiantId).stream().map(service::convertToDTO).toList();
     }
 
     @GetMapping("/matiere/{matiereId}")
-    public List<EtudiantMatiere> getByMatiere(@PathVariable Long matiereId) {
-        return service.getByMatiere(matiereId);
+    public List<EtudiantMatiereDTO> getByMatiere(@PathVariable Long matiereId) {
+        return service.getByMatiere(matiereId).stream().map(service::convertToDTO).toList();
     }
 
-    // Body : { "etudiantId": 1, "matiereId": 2 }
     @PostMapping
-    public EtudiantMatiere associer(@RequestBody Map<String, Long> body) {
-        return service.associer(body.get("etudiantId"), body.get("matiereId"));
+    public EtudiantMatiereDTO associer(@RequestBody Map<String, Long> body) {
+        return service.convertToDTO(service.associer(body.get("etudiantId"), body.get("matiereId")));
     }
 
     @DeleteMapping("/{id}")

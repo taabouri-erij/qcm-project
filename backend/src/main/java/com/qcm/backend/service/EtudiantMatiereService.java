@@ -1,5 +1,6 @@
 package com.qcm.backend.service;
 
+import com.qcm.backend.dto.EtudiantMatiereDTO;
 import com.qcm.backend.entity.EtudiantMatiere;
 import com.qcm.backend.entity.Matiere;
 import com.qcm.backend.entity.User;
@@ -47,5 +48,18 @@ public class EtudiantMatiereService {
 
     public void dissocier(Long id) {
         etudiantMatiereRepository.deleteById(id);
+    }
+
+    public EtudiantMatiereDTO convertToDTO(EtudiantMatiere em) {
+        EtudiantMatiereDTO dto = new EtudiantMatiereDTO();
+        dto.setId(em.getId());
+        if (em.getMatiere() != null) {
+            dto.setMatiereId(em.getMatiere().getId());
+            dto.setMatiereNom(em.getMatiere().getNom());
+        }
+        if (em.getEtudiant() != null) {
+            dto.setEtudiantId(em.getEtudiant().getId());
+        }
+        return dto;
     }
 }
