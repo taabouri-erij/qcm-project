@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [chargement, setChargement] = useState(true);
   const [tentatives, setTentatives] = useState([]);
   const [matieres, setMatieres] = useState([]);
@@ -39,12 +41,11 @@ function Dashboard() {
 
   const handleCommencer = async (evaluationId) => {
     try {
-      await api.post('/tentatives/demarrer', {
+      const res = await api.post('/tentatives/demarrer', {
         etudiantId: Number(user.userId),
         evaluationId: evaluationId,
       });
-      // Recharge la page pour rafraîchir l'état (temporaire, en attendant l'écran de passage)
-      window.location.reload();
+      navigate(`/passage/${res.data.id}`);
     } catch (err) {
       alert(err.response?.data?.message || "Impossible de démarrer l'évaluation");
     }
@@ -126,8 +127,7 @@ function Dashboard() {
           <br />
           Démarrée le : {new Date(tentativeEnCours.dateDebut).toLocaleString()}
           <br />
-          <button>Reprendre</button>
-          <em> (écran de passage à construire ensuite)</em>
+          <button onClick={() => navigate(`/passage/${tentativeEnCours.id}`)}>Reprendre</button>
         </div>
       )}
 
