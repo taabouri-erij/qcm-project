@@ -8,7 +8,7 @@ import com.qcm.backend.repository.EvaluationQuestionRepository;
 import com.qcm.backend.repository.EvaluationRepository;
 import com.qcm.backend.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
-import com.qcm.backend.exception.RessourceNonTrouveeException;
+
 import java.util.List;
 
 @Service
@@ -35,9 +35,9 @@ public class EvaluationQuestionService {
 
     public EvaluationQuestion ajouterQuestion(Long evaluationId, Long questionId, Double points, Integer ordre) {
         Evaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new RessourceNonTrouveeException("Évaluation non trouvée"));
+                .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new RessourceNonTrouveeException("Question non trouvée"));
+                .orElseThrow(() -> new RuntimeException("Question non trouvée"));
 
         EvaluationQuestion eq = new EvaluationQuestion();
         eq.setEvaluation(evaluation);
@@ -49,7 +49,7 @@ public class EvaluationQuestionService {
 
     public EvaluationQuestion update(Long id, Double points, Integer ordre) {
         EvaluationQuestion eq = repository.findById(id)
-                .orElseThrow(() -> new RessourceNonTrouveeException("Lien non trouvé"));
+                .orElseThrow(() -> new RuntimeException("Lien non trouvé"));
         if (points != null) eq.setPoints(points);
         if (ordre != null) eq.setOrdre(ordre);
         return repository.save(eq);
@@ -59,6 +59,7 @@ public class EvaluationQuestionService {
         repository.deleteById(id);
     }
 
+    // Version complète (enseignant/admin)
     public EvaluationQuestionDTO convertToDTO(EvaluationQuestion eq) {
         EvaluationQuestionDTO dto = new EvaluationQuestionDTO();
         dto.setId(eq.getId());
@@ -69,6 +70,21 @@ public class EvaluationQuestionService {
         }
         if (eq.getQuestion() != null) {
             dto.setQuestion(questionService.convertToDTO(eq.getQuestion()));
+        }
+        return dto;
+    }
+
+    // Version sans les bonnes réponses (étudiant en train de passer un examen)
+    public EvaluationQuestionDTO convertToDTOPourEtudiant(EvaluationQuestion eq) {
+        EvaluationQuestionDTO dto = new EvaluationQuestionDTO();
+        dto.setId(eq.getId());
+        dto.setPoints(eq.getPoints());
+        dto.setOrdre(eq.getOrdre());
+        if (eq.getEvaluation() != null) {
+            dto.setEvaluationId(eq.getEvaluation().getId());
+        }
+        if (eq.getQuestion() != null) {
+            dto.setQuestion(questionService.convertToDTOPourEtudiant(eq.getQuestion()));
         }
         return dto;
     }

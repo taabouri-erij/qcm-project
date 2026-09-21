@@ -182,7 +182,7 @@ function Passage() {
           <Card.Text style={{ fontSize: '1.1rem' }}>{q.enonce}</Card.Text>
 
           <Form>
-            {q.type === 'QCM_SIMPLE'
+            {q.type === 'CHOIX_UNIQUE'
               ? reponsesTriees.map((rp) => (
                   <Form.Check
                     key={rp.id}

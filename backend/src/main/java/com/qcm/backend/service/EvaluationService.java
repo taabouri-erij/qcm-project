@@ -2,11 +2,11 @@ package com.qcm.backend.service;
 
 import com.qcm.backend.dto.EvaluationDTO;
 import com.qcm.backend.entity.Evaluation;
+import com.qcm.backend.exception.RessourceNonTrouveeException;
 import com.qcm.backend.repository.EvaluationRepository;
 import org.springframework.stereotype.Service;
-import com.qcm.backend.exception.RessourceNonTrouveeException;
+
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EvaluationService {
@@ -24,8 +24,9 @@ public class EvaluationService {
         return evaluationRepository.findAll();
     }
 
-    public Optional<Evaluation> getEvaluationById(Long id) {
-        return evaluationRepository.findById(id);
+    public Evaluation getEvaluationById(Long id) {
+        return evaluationRepository.findById(id)
+                .orElseThrow(() -> new RessourceNonTrouveeException("Évaluation non trouvée"));
     }
 
     public List<Evaluation> getEvaluationsByChapitre(Long chapitreId) {
@@ -41,8 +42,7 @@ public class EvaluationService {
     }
 
     public Evaluation updateEvaluation(Long id, Evaluation details) {
-        Evaluation evaluation = evaluationRepository.findById(id)
-                .orElseThrow(() -> new RessourceNonTrouveeException("Évaluation non trouvée"));
+        Evaluation evaluation = getEvaluationById(id);
         evaluation.setTitre(details.getTitre());
         evaluation.setType(details.getType());
         evaluation.setDateDebut(details.getDateDebut());
@@ -58,7 +58,7 @@ public class EvaluationService {
         evaluationRepository.deleteById(id);
     }
 
-    public EvaluationDTO convertToDTO(Evaluation evaluation) {
+    private EvaluationDTO baseDTO(Evaluation evaluation) {
         EvaluationDTO dto = new EvaluationDTO();
         dto.setId(evaluation.getId());
         dto.setTitre(evaluation.getTitre());
@@ -77,6 +77,12 @@ public class EvaluationService {
             dto.setMatiereId(evaluation.getMatiere().getId());
             dto.setMatiereNom(evaluation.getMatiere().getNom());
         }
+        return dto;
+    }
+
+    // Version complète, AVEC les bonnes réponses (enseignant/admin)
+    public EvaluationDTO convertToDTO(Evaluation evaluation) {
+        EvaluationDTO dto = baseDTO(evaluation);
         if (evaluation.getEvaluationQuestions() != null) {
             dto.setQuestions(
                     evaluation.getEvaluationQuestions().stream()
@@ -87,10 +93,21 @@ public class EvaluationService {
         return dto;
     }
 
+    // Version SANS les bonnes réponses (étudiant en train de passer un examen)
+    public EvaluationDTO convertToDTOPourEtudiant(Evaluation evaluation) {
+        EvaluationDTO dto = baseDTO(evaluation);
+        if (evaluation.getEvaluationQuestions() != null) {
+            dto.setQuestions(
+                    evaluation.getEvaluationQuestions().stream()
+                            .map(evaluationQuestionService::convertToDTOPourEtudiant)
+                            .toList()
+            );
+        }
+        return dto;
+    }
+
     // Version "légère" sans le détail des questions (pour les listes)
     public EvaluationDTO convertToDTOSansQuestions(Evaluation evaluation) {
-        EvaluationDTO dto = convertToDTO(evaluation);
-        dto.setQuestions(null);
-        return dto;
+        return baseDTO(evaluation);
     }
 }

@@ -2,8 +2,8 @@ package com.qcm.backend.controller;
 
 import com.qcm.backend.dto.EvaluationDTO;
 import com.qcm.backend.entity.Evaluation;
+import com.qcm.backend.security.AuthUtils;
 import com.qcm.backend.service.EvaluationService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,11 +26,13 @@ public class EvaluationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EvaluationDTO> getEvaluationById(@PathVariable Long id) {
-        return evaluationService.getEvaluationById(id)
-                .map(evaluationService::convertToDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public EvaluationDTO getEvaluationById(@PathVariable Long id) {
+        Evaluation evaluation = evaluationService.getEvaluationById(id);
+        // Un étudiant ne doit JAMAIS recevoir les bonnes réponses via cet endpoint
+        if ("ETUDIANT".equals(AuthUtils.getRoleConnecte())) {
+            return evaluationService.convertToDTOPourEtudiant(evaluation);
+        }
+        return evaluationService.convertToDTO(evaluation);
     }
 
     @GetMapping("/chapitre/{chapitreId}")
@@ -51,17 +53,12 @@ public class EvaluationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EvaluationDTO> updateEvaluation(@PathVariable Long id, @RequestBody Evaluation details) {
-        try {
-            return ResponseEntity.ok(evaluationService.convertToDTO(evaluationService.updateEvaluation(id, details)));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public EvaluationDTO updateEvaluation(@PathVariable Long id, @RequestBody Evaluation details) {
+        return evaluationService.convertToDTO(evaluationService.updateEvaluation(id, details));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEvaluation(@PathVariable Long id) {
+    public void deleteEvaluation(@PathVariable Long id) {
         evaluationService.deleteEvaluation(id);
-        return ResponseEntity.noContent().build();
     }
 }

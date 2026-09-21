@@ -34,8 +34,6 @@ public class PassageController {
         this.tentativeService = tentativeService;
     }
 
-    // Vérifie que la tentative appartient bien à l'utilisateur connecté
-    // (sauf enseignant/admin, qui n'appellent normalement pas cet endpoint, mais on reste cohérent)
     private void verifierProprietaireTentative(Long tentativeId) {
         if (AuthUtils.estEnseignantOuAdmin()) {
             return;
@@ -49,12 +47,9 @@ public class PassageController {
         }
     }
 
-    // Body: { "tentativeId": 1, "evaluationQuestionId": 2, "reponsesPossiblesIds": [3, 5] }
     @PostMapping("/repondre")
     public Object repondre(@RequestBody Map<String, Object> body) {
         Long tentativeId = Long.valueOf(body.get("tentativeId").toString());
-
-        // >>> LA VÉRIFICATION CLÉ CONTRE L'IDOR <
         verifierProprietaireTentative(tentativeId);
 
         Long evaluationQuestionId = Long.valueOf(body.get("evaluationQuestionId").toString());
@@ -71,11 +66,9 @@ public class PassageController {
 
     @GetMapping("/questions/{evaluationId}")
     public List<EvaluationQuestionDTO> getQuestions(@PathVariable Long evaluationId) {
-        // Volontairement ouvert à tout utilisateur connecté :
-        // un étudiant doit pouvoir voir les questions de N'IMPORTE QUELLE évaluation à laquelle
-        // il a accès, ce n'est pas une donnée personnelle (contrairement aux réponses/notes).
+        // Toujours SANS les bonnes réponses : cet endpoint sert à passer l'examen
         return passageService.getQuestionsEvaluation(evaluationId).stream()
-                .map(evaluationQuestionService::convertToDTO)
+                .map(evaluationQuestionService::convertToDTOPourEtudiant)
                 .toList();
     }
 }
